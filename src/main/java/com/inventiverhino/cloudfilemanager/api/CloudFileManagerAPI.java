@@ -6,7 +6,6 @@ import com.inventiverhino.cloudfilemanager.model.CloudFile;
 import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
 
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +22,7 @@ public class CloudFileManagerAPI {
 
     private final CloudFileManagerService cloudFileManagerService;
 
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping
     public ResponseEntity<String> save(@RequestParam MultipartFile file) throws IOException {
         CloudFile cloudFile = CloudFile
                 .builder()
