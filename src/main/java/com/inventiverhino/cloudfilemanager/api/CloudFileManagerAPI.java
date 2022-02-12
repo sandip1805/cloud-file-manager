@@ -1,6 +1,7 @@
 package com.inventiverhino.cloudfilemanager.api;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import com.inventiverhino.cloudfilemanager.model.CloudFile;
 import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
@@ -23,11 +24,12 @@ public class CloudFileManagerAPI {
     private final CloudFileManagerService cloudFileManagerService;
 
     @PostMapping
-    public ResponseEntity<String> save(@RequestParam MultipartFile file) throws IOException {
+    public ResponseEntity<String> upload(@RequestParam MultipartFile file) throws IOException {
         CloudFile cloudFile = CloudFile
                 .builder()
                 .fileName(file.getOriginalFilename())
-                .path(Strings.EMPTY)
+                .optionalMetaData(Optional.empty())
+                .bucketName("cloud-file-manager")
                 .inputStream(file.getInputStream()).build();
         cloudFileManagerService.upload(cloudFile);
         return ResponseEntity.ok("File Uploaded Successfully");

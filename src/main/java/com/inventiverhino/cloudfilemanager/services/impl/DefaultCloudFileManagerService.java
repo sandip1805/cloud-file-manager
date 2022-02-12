@@ -5,9 +5,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.inventiverhino.cloudfilemanager.model.CloudFile;
 import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
-
-import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class DefaultCloudFileManagerService implements CloudFileManagerService {
             }
         });
         try {
-            amazonS3.putObject(cloudFile.getPath(), cloudFile.getFileName(), cloudFile.getInputStream(), objectMetadata);
+            amazonS3.putObject(cloudFile.getBucketName(), cloudFile.getFileName(), cloudFile.getInputStream(), objectMetadata);
         } catch (AmazonServiceException e) {
             throw new IllegalStateException("Failed to upload the file", e);
         }        

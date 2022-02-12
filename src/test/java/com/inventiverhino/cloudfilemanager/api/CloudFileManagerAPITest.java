@@ -37,7 +37,7 @@ public class CloudFileManagerAPITest {
         CloudFile cloudFile = CloudFile
                 .builder()
                 .fileName(fileName)
-                .path(Strings.EMPTY)
+                .bucketName(Strings.EMPTY)
                 .inputStream(inputStream)
                 .build();
         doNothing().when(cloudFileManagerService).upload(cloudFile);

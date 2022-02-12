@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CloudFile {
-    private String path;
+    private String bucketName;
     private String fileName;
     private Optional<Map<String, String>> optionalMetaData;
     private InputStream inputStream;
