@@ -1,5 +1,11 @@
 # cloud-file-manager
-Cloud File Manager is Spring boot application which will interact with AWS S3 and Azure Blob Storage for file related operation, you can reuse this piece of code in your system for fast development
+Cloud File Manager is Spring boot application which will interact with AWS S3 and Azure Blob Storage for file related operation, you can reuse this piece of code in your system for fast development.
+Below are the list of supported operation
+- Upload file to cloud like aws s3 or azure blob storage based on spring profile
+- Get uploaded file list
+- Download uploaded file
+- Delete file by name
+- Delete all uploaded files
 
 
 [![Build Status](https://travis-ci.org/sandip1805/cloud-file-manager.svg?branch=main)](https://travis-ci.org/codecentric/cloud-file-manager)
@@ -23,28 +29,6 @@ Alternatively you can use the [Spring Boot Maven plugin](https://docs.spring.io/
 
 ```shell
 mvn spring-boot:run
-```
-
-## Deploying the application to OpenShift
-
-The easiest way to deploy the sample application to OpenShift is to use the [OpenShift CLI](https://docs.openshift.org/latest/cli_reference/index.html):
-
-```shell
-oc new-app codecentric/springboot-maven3-centos~https://github.com/codecentric/springboot-sample-app
-```
-
-This will create:
-
-* An ImageStream called "springboot-maven3-centos"
-* An ImageStream called "springboot-sample-app"
-* A BuildConfig called "springboot-sample-app"
-* DeploymentConfig called "springboot-sample-app"
-* Service called "springboot-sample-app"
-
-If you want to access the app from outside your OpenShift installation, you have to expose the springboot-sample-app service:
-
-```shell
-oc expose springboot-sample-app --hostname=www.example.com
 ```
 
 ## Copyright
