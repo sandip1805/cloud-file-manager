@@ -6,13 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.net.URI;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CloudFileManagerAPIHttpRequestTest {
+
+    private static final String FILE_NAME = "men-canvas-shoes.jpg";
 
     @LocalServerPort
     private int port;
@@ -23,7 +29,7 @@ public class CloudFileManagerAPIHttpRequestTest {
     @Test
     public void uploadShouldReturnSuccess() {
         LinkedMultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
-        parameters.add("file", new org.springframework.core.io.ClassPathResource("men-canvas-shoes.jpg"));
+        parameters.add("file", new org.springframework.core.io.ClassPathResource(FILE_NAME));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -51,6 +57,17 @@ public class CloudFileManagerAPIHttpRequestTest {
 
         // Expect InternalServerError
         assertThat(response.getStatusCode(), Matchers.is(HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    public void downloadShouldReturnSuccess() {
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:"+port).path("/cloud/filemanager/")
+                .queryParam("fileName", FILE_NAME).build().toUri();
+        ResponseEntity<Resource> response = testRestTemplate.getForEntity(uri, Resource.class);
+
+        // Expect Ok
+        assertThat(response.getStatusCode(), Matchers.is(HttpStatus.OK));
+        assertThat(response.getBody().getFilename(), Matchers.is(FILE_NAME));
     }
 
 }

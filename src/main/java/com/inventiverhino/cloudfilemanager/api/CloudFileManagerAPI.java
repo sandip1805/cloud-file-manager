@@ -6,8 +6,12 @@ import java.util.Optional;
 import com.inventiverhino.cloudfilemanager.model.CloudFile;
 import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
 
-import org.apache.logging.log4j.util.Strings;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CloudFileManagerAPI {
 
+    private static final String BUCKET_NAME = "cloud-file-manager";
     private final CloudFileManagerService cloudFileManagerService;
 
     @PostMapping
@@ -28,11 +33,34 @@ public class CloudFileManagerAPI {
         CloudFile cloudFile = CloudFile
                 .builder()
                 .fileName(file.getOriginalFilename())
-                .optionalMetaData(Optional.empty())
-                .bucketName("cloud-file-manager")
+                .optionalMetaData(Optional.empty()) // This is added empty as right now we are acepting from request
+                                                    // param or body
+                .bucketName(BUCKET_NAME)
                 .inputStream(file.getInputStream()).build();
         cloudFileManagerService.upload(cloudFile);
         return ResponseEntity.ok("File Uploaded Successfully");
+    }
+
+    @GetMapping
+    public ResponseEntity<Resource> download(@RequestParam String fileName) {
+        CloudFile cloudFile = CloudFile
+                .builder()
+                .fileName(fileName)
+                .optionalMetaData(Optional.empty())
+                .bucketName(BUCKET_NAME)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        
+        InputStreamResource resource = new InputStreamResource(cloudFileManagerService.download(cloudFile));
+        return ResponseEntity.ok()
+                .headers(headers)                
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
 }
