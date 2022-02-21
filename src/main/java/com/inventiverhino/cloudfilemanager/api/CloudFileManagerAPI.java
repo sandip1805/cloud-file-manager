@@ -9,8 +9,10 @@ import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/cloud/filemanager")
@@ -33,8 +36,7 @@ public class CloudFileManagerAPI {
         CloudFile cloudFile = CloudFile
                 .builder()
                 .fileName(file.getOriginalFilename())
-                .optionalMetaData(Optional.empty()) // This is added empty as right now we are acepting from request
-                                                    // param or body
+                .optionalMetaData(Optional.empty()) // This is added empty as right now we are accepting from request param or body
                 .bucketName(BUCKET_NAME)
                 .inputStream(file.getInputStream()).build();
         cloudFileManagerService.upload(cloudFile);
@@ -43,6 +45,9 @@ public class CloudFileManagerAPI {
 
     @GetMapping
     public ResponseEntity<Resource> download(@RequestParam String fileName) {
+        if (!StringUtils.hasText(fileName)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fileName is missing");
+        }
         CloudFile cloudFile = CloudFile
                 .builder()
                 .fileName(fileName)
