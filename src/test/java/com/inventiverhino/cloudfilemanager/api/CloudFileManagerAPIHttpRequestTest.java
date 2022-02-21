@@ -1,5 +1,7 @@
 package com.inventiverhino.cloudfilemanager.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.inventiverhino.cloudfilemanager.model.ListFilesResponse;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CloudFileManagerAPIHttpRequestTest {
@@ -36,7 +40,7 @@ public class CloudFileManagerAPIHttpRequestTest {
 
         HttpEntity<LinkedMultiValueMap<String, Object>> entity = new HttpEntity<>(parameters, headers);
 
-        ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:"+port+"/cloud/filemanager/", HttpMethod.POST, entity, String.class, "");
+        ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:" + port + "/cloud/filemanager/", HttpMethod.POST, entity, String.class, "");
 
         // Expect Ok
         assertThat(response.getStatusCode(), Matchers.is(HttpStatus.OK));
@@ -53,7 +57,7 @@ public class CloudFileManagerAPIHttpRequestTest {
 
         HttpEntity<LinkedMultiValueMap<String, Object>> entity = new HttpEntity<>(parameters, headers);
 
-        ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:"+port+"/cloud/filemanager/", HttpMethod.POST, entity, String.class, "");
+        ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:" + port + "/cloud/filemanager/", HttpMethod.POST, entity, String.class, "");
 
         // Expect InternalServerError
         assertThat(response.getStatusCode(), Matchers.is(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -61,7 +65,7 @@ public class CloudFileManagerAPIHttpRequestTest {
 
     @Test
     public void downloadShouldReturnSuccess() {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:"+port).path("/cloud/filemanager/")
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:" + port).path("/cloud/filemanager/")
                 .queryParam("fileName", FILE_NAME).build().toUri();
         ResponseEntity<Resource> response = testRestTemplate.getForEntity(uri, Resource.class);
 
@@ -70,4 +74,16 @@ public class CloudFileManagerAPIHttpRequestTest {
         assertThat(response.getBody().getFilename(), Matchers.is(FILE_NAME));
     }
 
+    @Test
+    public void listFilesShouldReturnSuccess() {
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl("http://localhost:" + port)
+                .path("/cloud/filemanager/listFiles")
+                .build()
+                .toUri();
+        ResponseEntity<ListFilesResponse> response = testRestTemplate.getForEntity(uri, ListFilesResponse.class);
+
+        // Expect Ok
+        assertThat(response.getStatusCode(), Matchers.is(HttpStatus.OK));
+    }
 }

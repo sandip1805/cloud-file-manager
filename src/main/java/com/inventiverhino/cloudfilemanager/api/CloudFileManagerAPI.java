@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import com.inventiverhino.cloudfilemanager.model.CloudFile;
+import com.inventiverhino.cloudfilemanager.model.ListFilesResponse;
 import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
 
 import org.springframework.core.io.InputStreamResource;
@@ -56,16 +57,24 @@ public class CloudFileManagerAPI {
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
-        
+
         InputStreamResource resource = new InputStreamResource(cloudFileManagerService.download(cloudFile));
         return ResponseEntity.ok()
-                .headers(headers)                
+                .headers(headers)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
+    }
+
+    @GetMapping("/listFiles")
+    public ResponseEntity<ListFilesResponse> listFiles(@RequestParam(required = false) Integer maxKeys) {
+        return ResponseEntity.ok(
+                cloudFileManagerService.listFiles(BUCKET_NAME, null == maxKeys ? 0 : maxKeys)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No file present in bucket"))
+        );
     }
 
 }

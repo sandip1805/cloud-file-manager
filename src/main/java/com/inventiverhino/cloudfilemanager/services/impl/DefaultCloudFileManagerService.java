@@ -1,13 +1,17 @@
 package com.inventiverhino.cloudfilemanager.services.impl;
 
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.*;
 import com.inventiverhino.cloudfilemanager.model.CloudFile;
+import com.inventiverhino.cloudfilemanager.model.ListFilesResponse;
 import com.inventiverhino.cloudfilemanager.services.CloudFileManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,13 +21,13 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 public class DefaultCloudFileManagerService implements CloudFileManagerService {
-    
-    private final AmazonS3 amazonS3;    
+
+    private final AmazonS3 amazonS3;
 
     @Override
     public void upload(CloudFile cloudFile) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        cloudFile.getOptionalMetaData().ifPresent(map -> {            
+        cloudFile.getOptionalMetaData().ifPresent(map -> {
             if (!map.isEmpty()) {
                 map.forEach(objectMetadata::addUserMetadata);
             }
@@ -45,6 +49,23 @@ public class DefaultCloudFileManagerService implements CloudFileManagerService {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested file does not exist on bucket");
         }
+    }
+
+    @Override
+    public Optional<ListFilesResponse> listFiles(String bucketName, int maxKeys) {
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest(bucketName, "", "", "", maxKeys > 0 ? maxKeys : 100);
+        ObjectListing objectListing = amazonS3.listObjects(listObjectsRequest);
+        if (null != objectListing) {
+            List<String> files = objectListing.getObjectSummaries().stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
+            return Optional.of(
+                    ListFilesResponse
+                            .builder()
+                            .files(files)
+                            .totalFiles(files.size())
+                            .build()
+            );
+        }
+        return Optional.empty();
     }
 
 }
