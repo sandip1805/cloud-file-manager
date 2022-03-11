@@ -1,6 +1,5 @@
 package com.inventiverhino.cloudfilemanager.api;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.inventiverhino.cloudfilemanager.model.ListFilesResponse;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -13,11 +12,9 @@ import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CloudFileManagerAPIHttpRequestTest {
@@ -85,5 +82,6 @@ public class CloudFileManagerAPIHttpRequestTest {
 
         // Expect Ok
         assertThat(response.getStatusCode(), Matchers.is(HttpStatus.OK));
+        assertThat(response.getBody().getTotalFiles(), Matchers.is(1));
     }
 }

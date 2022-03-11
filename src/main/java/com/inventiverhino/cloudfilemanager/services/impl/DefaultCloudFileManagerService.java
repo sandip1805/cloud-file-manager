@@ -68,4 +68,14 @@ public class DefaultCloudFileManagerService implements CloudFileManagerService {
         return Optional.empty();
     }
 
+    @Override
+    public void delete(CloudFile cloudFile) {
+        if (amazonS3.doesObjectExist(cloudFile.getBucketName(), cloudFile.getFileName())) {
+            DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(cloudFile.getBucketName(), cloudFile.getFileName());
+            amazonS3.deleteObject(deleteObjectRequest);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested file does not exist on bucket");
+        }
+    }
+
 }

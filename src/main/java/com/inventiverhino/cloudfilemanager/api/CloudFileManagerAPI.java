@@ -14,11 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
@@ -75,6 +71,21 @@ public class CloudFileManagerAPI {
                 cloudFileManagerService.listFiles(BUCKET_NAME, null == maxKeys ? 0 : maxKeys)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No file present in bucket"))
         );
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteFile(@RequestParam String fileName) {
+        if (!StringUtils.hasText(fileName)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fileName is missing");
+        }
+        CloudFile cloudFile = CloudFile
+                .builder()
+                .fileName(fileName)
+                .optionalMetaData(Optional.empty())
+                .bucketName(BUCKET_NAME)
+                .build();
+        cloudFileManagerService.delete(cloudFile);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -12,4 +12,5 @@ public interface CloudFileManagerService {
     void upload(CloudFile cloudFile);
     InputStream download(CloudFile cloudFile);
     Optional<ListFilesResponse> listFiles(String bucketName, int maxKeys);
+    void delete(CloudFile cloudFile);
 }
